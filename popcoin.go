@@ -18,7 +18,6 @@ func NewClient(token string) *Client {
 
 	return &Client{
 		&napping.Session{
-			Log:    true,
 			Header: &header,
 		},
 	}
