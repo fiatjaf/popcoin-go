@@ -3,6 +3,8 @@ package popcoin
 import (
 	"net/http"
 
+	"github.com/kr/pretty"
+
 	"gopkg.in/jmcvetta/napping.v3"
 )
 
@@ -16,6 +18,7 @@ func NewClient(token string) *Client {
 
 	return &Client{
 		&napping.Session{
+			Log:    true,
 			Header: &header,
 		},
 	}
@@ -35,24 +38,26 @@ func (c Client) Ping() (PingResponse, error) {
 	if werr.Status == "error" {
 		return r, werr
 	}
+	pretty.Log(r)
 	return r, nil
 }
 
 type PingResponse struct {
-	Result,
-	Dev struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Dev     struct {
 		Referral  string `json:"referral"`
 		Email     string `json:"email"`
 		CreatedAt string `json:"created_at"`
 	} `json:"dev"`
 }
 
-func (c Client) Identify(user, email string) (Result, error) {
-	r := Result{}
+func (c Client) Identify(user, email string) (IdentifyResponse, error) {
+	r := IdentifyResponse{}
 	werr := Error{}
 	_, err := c.Post(base+"/identify", struct {
 		User  string `json:"user"`
-		email string `json:"email"`
+		Email string `json:"email"`
 	}{user, email}, &r, &werr)
 	if err != nil {
 		return r, err
@@ -61,6 +66,11 @@ func (c Client) Identify(user, email string) (Result, error) {
 		return r, werr
 	}
 	return r, nil
+}
+
+type IdentifyResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
 }
 
 func (c Client) Spend(user string, amount float64) (SpendResponse, error) {
@@ -80,19 +90,18 @@ func (c Client) Spend(user string, amount float64) (SpendResponse, error) {
 }
 
 type SpendResponse struct {
-	Result,
+	Status   string `json:"status"`
+	Message  string `json:"message"`
 	Balances struct {
 		Available string `json:"available"`
 		Current   string `json:"current"`
 	} `json:"dev"`
 }
 
-type Result struct {
+type Error struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
 }
-
-type Error Result
 
 func (err Error) Error() string {
 	return err.Message
