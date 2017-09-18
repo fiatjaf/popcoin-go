@@ -2,6 +2,7 @@ package popcoin
 
 import (
 	"net/http"
+	"time"
 
 	"gopkg.in/jmcvetta/napping.v3"
 )
@@ -120,13 +121,13 @@ type SpendResponse struct {
 // ListSpends returns a list of spends from an user for a period.
 //
 // https://paper.dropbox.com/doc/Popcoin-API-gdXBTirKxRGeJHgKXOJfl#:uid=086943532382217583794225&h2=GET-Spend
-func (c Client) ListSpends(user, gte, lte string) (ListSpendsResponse, error) {
+func (c Client) ListSpends(user string, gte, lte time.Time) (ListSpendsResponse, error) {
 	r := ListSpendsResponse{}
 	werr := Error{}
 	params := napping.Params{
 		"user": user,
-		"gte":  gte,
-		"lte":  lte,
+		"gte":  gte.Format("2006-01-02"),
+		"lte":  lte.Format("2006-01-02"),
 	}.AsUrlValues()
 	_, err := c.Get(base+"/spend", &params, &r, &werr)
 	if err != nil {
