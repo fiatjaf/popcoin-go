@@ -1,3 +1,4 @@
+// popcoin is a wrapper for the https://popcoin.ws/ REST API.
 package popcoin
 
 import (
