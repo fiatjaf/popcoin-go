@@ -48,7 +48,6 @@ func (c Client) Ping() (PingResponse, error) {
 	if werr.Status == "error" {
 		return r, werr
 	}
-	// pretty.Log(r)
 	return r, nil
 }
 
@@ -115,7 +114,7 @@ type SpendResponse struct {
 	Balances struct {
 		Available string `json:"available"`
 		Current   string `json:"current"`
-	} `json:"dev"`
+	} `json:"balances"`
 }
 
 // ListSpends returns a list of spends from an user for a period.
