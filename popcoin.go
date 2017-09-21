@@ -2,6 +2,7 @@
 package popcoin
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -96,10 +97,10 @@ func (c Client) Spend(user string, amount float64, desc string) (SpendResponse, 
 	r := SpendResponse{}
 	werr := Error{}
 	_, err := c.Post(base+"/spend", struct {
-		User        string  `json:"user"`
-		Amount      float64 `json:"amount"`
-		Description string  `json:"description"`
-	}{user, amount, desc}, &r, &werr)
+		User        string      `json:"user"`
+		Amount      humbleFloat `json:"amount"`
+		Description string      `json:"description"`
+	}{user, humbleFloat(amount), desc}, &r, &werr)
 	if err != nil {
 		return r, err
 	}
@@ -107,6 +108,13 @@ func (c Client) Spend(user string, amount float64, desc string) (SpendResponse, 
 		return r, werr
 	}
 	return r, nil
+}
+
+type humbleFloat float64
+
+func (p humbleFloat) MarshalJSON() ([]byte, error) {
+	s := fmt.Sprintf("%.4f", p)
+	return []byte(s[0 : len(s)-1]), nil
 }
 
 type SpendResponse struct {
@@ -142,10 +150,10 @@ func (c Client) ListSpends(user string, gte, lte time.Time) (ListSpendsResponse,
 type ListSpendsResponse struct {
 	Status string `json:"status"`
 	Spends []struct {
-		Id          string  `json:"_id"`
-		Amount      float64 `json:"amount"`
-		Description string  `json:"description"`
-		SpentAt     string  `json:"spent_at"`
+		Id          string    `json:"_id"`
+		Amount      float64   `json:"amount"`
+		Description string    `json:"description"`
+		SpentAt     time.Time `json:"spent_at"`
 	} `json:"spends"`
 }
 
