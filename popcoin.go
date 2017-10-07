@@ -4,6 +4,7 @@ package popcoin
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"time"
 
 	"gopkg.in/jmcvetta/napping.v3"
@@ -89,6 +90,35 @@ type IdentifyResponse struct {
 	Message string `json:"message"`
 }
 
+// GetUser retrieves a user data. Email and balance.
+//
+// https://paper.dropbox.com/doc/Popcoin-API-gdXBTirKxRGeJHgKXOJfl#:uid=196172651128797776297907&h2=GET-Identify
+func (c Client) GetUser(user string) (UserResponse, error) {
+	r := UserResponse{}
+	werr := Error{}
+
+	params := url.Values{
+		"user": []string{user},
+	}
+	_, err := c.Get(base+"/identify", &params, &r, &werr)
+	if err != nil {
+		return r, err
+	}
+	if werr.Status == "error" {
+		return r, werr
+	}
+	return r, nil
+}
+
+type UserResponse struct {
+	Status string `json:"status"`
+	User   struct {
+		Key      string   `json:"key"`
+		Email    string   `json:"email"`
+		Balances Balances `json:"balances"`
+	} `json:"user"`
+}
+
 // Spend consumes some amount of credits from an user account
 // and returns the current balances for that user.
 //
@@ -118,12 +148,9 @@ func (p humbleFloat) MarshalJSON() ([]byte, error) {
 }
 
 type SpendResponse struct {
-	Status   string `json:"status"`
-	Message  string `json:"message"`
-	Balances struct {
-		Available string `json:"available"`
-		Current   string `json:"current"`
-	} `json:"balances"`
+	Status   string   `json:"status"`
+	Message  string   `json:"message"`
+	Balances Balances `json:"balances"`
 }
 
 // ListSpends returns a list of spends from an user for a period.
@@ -160,6 +187,11 @@ type ListSpendsResponse struct {
 type Error struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
+}
+
+type Balances struct {
+	Available string `json:"available"`
+	Current   string `json:"current"`
 }
 
 func (err Error) Error() string {
