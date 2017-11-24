@@ -116,6 +116,7 @@ type UserResponse struct {
 		Key      string   `json:"key"`
 		Email    string   `json:"email"`
 		Balances Balances `json:"balances"`
+		Link     string   `json:"link"`
 	} `json:"user"`
 }
 
