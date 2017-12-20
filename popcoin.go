@@ -10,7 +10,7 @@ import (
 	"gopkg.in/jmcvetta/napping.v3"
 )
 
-const base = "https://popcoin.ws/api"
+var BASE = "https://popcoin.ws/api"
 
 // NewClient creates a new Popcoin client.
 //
@@ -44,7 +44,7 @@ type Client struct {
 func (c Client) Ping() (PingResponse, error) {
 	r := PingResponse{}
 	werr := Error{}
-	_, err := c.Get(base+"/ping", nil, &r, &werr)
+	_, err := c.Get(BASE+"/ping", nil, &r, &werr)
 	if err != nil {
 		return r, err
 	}
@@ -72,7 +72,7 @@ type PingResponse struct {
 func (c Client) Identify(user, email string) (IdentifyResponse, error) {
 	r := IdentifyResponse{}
 	werr := Error{}
-	_, err := c.Post(base+"/identify", struct {
+	_, err := c.Post(BASE+"/identify", struct {
 		User  string `json:"user"`
 		Email string `json:"email"`
 	}{user, email}, &r, &werr)
@@ -100,7 +100,7 @@ func (c Client) GetUser(user string) (UserResponse, error) {
 	params := url.Values{
 		"user": []string{user},
 	}
-	_, err := c.Get(base+"/identify", &params, &r, &werr)
+	_, err := c.Get(BASE+"/identify", &params, &r, &werr)
 	if err != nil {
 		return r, err
 	}
@@ -127,7 +127,7 @@ type UserResponse struct {
 func (c Client) Spend(user string, amount float64, desc string) (SpendResponse, error) {
 	r := SpendResponse{}
 	werr := Error{}
-	_, err := c.Post(base+"/spend", struct {
+	_, err := c.Post(BASE+"/spend", struct {
 		User        string      `json:"user"`
 		Amount      humbleFloat `json:"amount"`
 		Description string      `json:"description"`
@@ -165,7 +165,7 @@ func (c Client) ListSpends(user string, gte, lte time.Time) (ListSpendsResponse,
 		"gte":  gte.Format("2006-01-02"),
 		"lte":  lte.Format("2006-01-02"),
 	}.AsUrlValues()
-	_, err := c.Get(base+"/spend", &params, &r, &werr)
+	_, err := c.Get(BASE+"/spend", &params, &r, &werr)
 	if err != nil {
 		return r, err
 	}
